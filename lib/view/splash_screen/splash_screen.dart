@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import '../../../core/constants/color_contants.dart';
 import 'package:quizapp/view/quiz_screen/quiz_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -22,11 +23,11 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: ColorConstant.primaryBlack,
       body: Center(
           child: Text("QuizApp",
               style: TextStyle(
-                  color: Colors.white,
+                  color: ColorConstant.primaryWhite,
                   fontSize: 30,
                   fontWeight: FontWeight.bold))),
     );
