@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:quizapp/controller/home_screen_controller.dart';
+import 'package:quizapp/view/result_screen/result_screen.dart';
 import '../../../core/constants/color_contants.dart';
 
 class QuizScreen extends StatefulWidget {
@@ -14,6 +15,7 @@ class QuizScreen extends StatefulWidget {
 class _QuizScreenState extends State<QuizScreen> {
   int currentQuestionIndex = 0;
   int? selectedAnswerIndex;
+  int rightAnswerCount = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,6 +48,13 @@ class _QuizScreenState extends State<QuizScreen> {
                               onTap: () {
                                 if (selectedAnswerIndex == null) {
                                   selectedAnswerIndex = index;
+                                  if (selectedAnswerIndex ==
+                                      HomeScreenController
+                                          .questions[currentQuestionIndex]
+                                          .correctAnswerIndex) {
+                                    rightAnswerCount++;
+                                  }
+                                  print(rightAnswerCount);
                                   setState(() {});
                                 }
                               },
@@ -57,15 +66,7 @@ class _QuizScreenState extends State<QuizScreen> {
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(10),
                                       border: Border.all(
-                                          color: selectedAnswerIndex == index
-                                              ? (selectedAnswerIndex ==
-                                                      HomeScreenController
-                                                          .questions[
-                                                              currentQuestionIndex]
-                                                          .correctAnswerIndex)
-                                                  ? Colors.green
-                                                  : Colors.red
-                                              : ColorConstant.primaryWhite)),
+                                          color: optionColor(index))),
                                   child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
@@ -75,10 +76,10 @@ class _QuizScreenState extends State<QuizScreen> {
                                             .questions[currentQuestionIndex]
                                             .optionList[index],
                                         style: TextStyle(
-                                            color: ColorConstant.primaryWhite),
+                                            color: optionColor(index)),
                                       ),
-                                      Icon(Icons.circle_outlined,
-                                          color: ColorConstant.primaryWhite)
+                                      Icon(buildIcons(index),
+                                          color: optionColor(index))
                                     ],
                                   ),
                                 ),
@@ -87,11 +88,19 @@ class _QuizScreenState extends State<QuizScreen> {
                 SizedBox(height: 30),
                 InkWell(
                   onTap: () {
-                    if (currentQuestionIndex <
-                        HomeScreenController.questions.length - 1) {
-                      currentQuestionIndex++;
-                      selectedAnswerIndex = null;
-                      setState(() {});
+                    if (selectedAnswerIndex != null) {
+                      if (currentQuestionIndex <
+                          HomeScreenController.questions.length - 1) {
+                        currentQuestionIndex++;
+                        selectedAnswerIndex = null;
+                        setState(() {});
+                      } else {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ResultScreen(
+                                    rightAnswerCount: rightAnswerCount)));
+                      }
                     }
                   },
                   child: Container(
@@ -115,5 +124,45 @@ class _QuizScreenState extends State<QuizScreen> {
         ),
       ),
     );
+  }
+
+  Color optionColor(int index) {
+    if (index ==
+            HomeScreenController
+                .questions[currentQuestionIndex].correctAnswerIndex &&
+        selectedAnswerIndex != null) {
+      //to show green for right answer when selected answer is null
+      return ColorConstant.primaryGreen;
+    } else if (selectedAnswerIndex == index) {
+      if (selectedAnswerIndex ==
+          HomeScreenController
+              .questions[currentQuestionIndex].correctAnswerIndex) {
+        //to show green if selected answer is correct
+        return ColorConstant.primaryGreen;
+      } else {
+        //to show red if selected answer is wrong
+        return ColorConstant.primaryRed;
+      }
+    } else {
+      //to show default color
+      return ColorConstant.primaryWhite;
+    }
+  }
+
+  IconData? buildIcons(int index) {
+    if (index ==
+            HomeScreenController
+                .questions[currentQuestionIndex].correctAnswerIndex &&
+        selectedAnswerIndex != null) {
+      return Icons.done;
+    } else if (selectedAnswerIndex == index) {
+      if (selectedAnswerIndex !=
+          HomeScreenController
+              .questions[currentQuestionIndex].correctAnswerIndex) {
+        return Icons.close;
+      }
+    } else {
+      return null;
+    }
   }
 }

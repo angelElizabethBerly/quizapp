@@ -24,12 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ColorConstant.primaryBlack,
-      body: Center(
-          child: Text("QuizApp",
-              style: TextStyle(
-                  color: ColorConstant.primaryWhite,
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold))),
+      body: Center(child: Image.asset("assets/images/quiz_app_splash.jpg")),
     );
   }
 }
