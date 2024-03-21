@@ -2,11 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:quizapp/controller/home_screen_controller.dart';
+import 'package:quizapp/model/quiz_screen_models/question_model.dart';
 import 'package:quizapp/view/result_screen/result_screen.dart';
 import '../../../core/constants/color_contants.dart';
 
 class QuizScreen extends StatefulWidget {
-  const QuizScreen({super.key});
+  const QuizScreen({super.key, required this.selectedCategory});
+  final String selectedCategory;
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
@@ -16,8 +18,20 @@ class _QuizScreenState extends State<QuizScreen> {
   int currentQuestionIndex = 0;
   int? selectedAnswerIndex;
   int rightAnswerCount = 0;
+  int wrongAnswerCount = 0;
+
   @override
   Widget build(BuildContext context) {
+    List<QuestionModel> questions;
+    if (widget.selectedCategory == "Sports") {
+      questions = HomeScreenController.sportsQuestions;
+    } else if (widget.selectedCategory == "Chemistry") {
+      questions = HomeScreenController.chemistryQuestions;
+    } else if (widget.selectedCategory == "Math") {
+      questions = HomeScreenController.mathQuestions;
+    } else {
+      questions = HomeScreenController.historyQuestions;
+    }
     return Scaffold(
       backgroundColor: ColorConstant.primaryBlack,
       body: Center(
@@ -33,26 +47,24 @@ class _QuizScreenState extends State<QuizScreen> {
                   decoration: BoxDecoration(
                       color: ColorConstant.primaryBlueGrey,
                       borderRadius: BorderRadius.circular(20)),
-                  child: Text(
-                      HomeScreenController
-                          .questions[currentQuestionIndex].question,
+                  child: Text(questions[currentQuestionIndex].question,
                       style: TextStyle(
                           color: ColorConstant.primaryWhite, fontSize: 20)),
                 ),
                 SizedBox(height: 30),
                 Column(
                     children: List.generate(
-                        HomeScreenController
-                            .questions[currentQuestionIndex].optionList.length,
+                        questions[currentQuestionIndex].optionList.length,
                         (index) => InkWell(
                               onTap: () {
                                 if (selectedAnswerIndex == null) {
                                   selectedAnswerIndex = index;
                                   if (selectedAnswerIndex ==
-                                      HomeScreenController
-                                          .questions[currentQuestionIndex]
+                                      questions[currentQuestionIndex]
                                           .correctAnswerIndex) {
                                     rightAnswerCount++;
+                                  } else {
+                                    wrongAnswerCount++;
                                   }
                                   print(rightAnswerCount);
                                   setState(() {});
@@ -66,20 +78,21 @@ class _QuizScreenState extends State<QuizScreen> {
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(10),
                                       border: Border.all(
-                                          color: optionColor(index))),
+                                          color:
+                                              optionColor(index, questions))),
                                   child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        HomeScreenController
-                                            .questions[currentQuestionIndex]
+                                        questions[currentQuestionIndex]
                                             .optionList[index],
                                         style: TextStyle(
-                                            color: optionColor(index)),
+                                            color:
+                                                optionColor(index, questions)),
                                       ),
-                                      Icon(buildIcons(index),
-                                          color: optionColor(index))
+                                      Icon(buildIcons(index, questions),
+                                          color: optionColor(index, questions))
                                     ],
                                   ),
                                 ),
@@ -89,8 +102,7 @@ class _QuizScreenState extends State<QuizScreen> {
                 InkWell(
                   onTap: () {
                     if (selectedAnswerIndex != null) {
-                      if (currentQuestionIndex <
-                          HomeScreenController.questions.length - 1) {
+                      if (currentQuestionIndex < questions.length - 1) {
                         currentQuestionIndex++;
                         selectedAnswerIndex = null;
                         setState(() {});
@@ -99,7 +111,22 @@ class _QuizScreenState extends State<QuizScreen> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => ResultScreen(
-                                    rightAnswerCount: rightAnswerCount)));
+                                    rightAnswerCount: rightAnswerCount,
+                                    wrongAnswerCount: wrongAnswerCount,
+                                    totalQns: questions.length)));
+                      }
+                    } else {
+                      if (currentQuestionIndex < questions.length - 1) {
+                        currentQuestionIndex++;
+                        setState(() {});
+                      } else {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ResultScreen(
+                                    rightAnswerCount: rightAnswerCount,
+                                    wrongAnswerCount: wrongAnswerCount,
+                                    totalQns: questions.length)));
                       }
                     }
                   },
@@ -110,7 +137,7 @@ class _QuizScreenState extends State<QuizScreen> {
                         color: ColorConstant.primaryBlue,
                         borderRadius: BorderRadius.circular(10)),
                     child: Center(
-                      child: Text("Next",
+                      child: Text(selectedAnswerIndex != null ? "Next" : "Skip",
                           style: TextStyle(
                               color: ColorConstant.primaryWhite,
                               fontSize: 25,
@@ -126,17 +153,14 @@ class _QuizScreenState extends State<QuizScreen> {
     );
   }
 
-  Color optionColor(int index) {
-    if (index ==
-            HomeScreenController
-                .questions[currentQuestionIndex].correctAnswerIndex &&
+  Color optionColor(int index, List<QuestionModel> questions) {
+    if (index == questions[currentQuestionIndex].correctAnswerIndex &&
         selectedAnswerIndex != null) {
       //to show green for right answer when selected answer is null
       return ColorConstant.primaryGreen;
     } else if (selectedAnswerIndex == index) {
       if (selectedAnswerIndex ==
-          HomeScreenController
-              .questions[currentQuestionIndex].correctAnswerIndex) {
+          questions[currentQuestionIndex].correctAnswerIndex) {
         //to show green if selected answer is correct
         return ColorConstant.primaryGreen;
       } else {
@@ -149,16 +173,13 @@ class _QuizScreenState extends State<QuizScreen> {
     }
   }
 
-  IconData? buildIcons(int index) {
-    if (index ==
-            HomeScreenController
-                .questions[currentQuestionIndex].correctAnswerIndex &&
+  IconData? buildIcons(int index, List<QuestionModel> questions) {
+    if (index == questions[currentQuestionIndex].correctAnswerIndex &&
         selectedAnswerIndex != null) {
       return Icons.done;
     } else if (selectedAnswerIndex == index) {
       if (selectedAnswerIndex !=
-          HomeScreenController
-              .questions[currentQuestionIndex].correctAnswerIndex) {
+          questions[currentQuestionIndex].correctAnswerIndex) {
         return Icons.close;
       }
     } else {

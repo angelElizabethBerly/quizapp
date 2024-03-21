@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:quizapp/view/category_screen/category_screen.dart';
 import '../../../core/constants/color_contants.dart';
 import 'package:quizapp/view/quiz_screen/quiz_screen.dart';
 
@@ -15,8 +16,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     Future.delayed(Duration(seconds: 3)).then((value) =>
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => QuizScreen())));
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => CategoryScreen())));
     super.initState();
   }
 
@@ -24,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ColorConstant.primaryBlack,
-      body: Center(child: Image.asset("assets/images/quiz_app_splash.jpg")),
+      body: Center(child: Image.asset("assets/images/quiz_app_splash.png")),
     );
   }
 }
